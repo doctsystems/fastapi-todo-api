@@ -6,18 +6,21 @@ from app.v1.utils.settings import Settings
 
 settings = Settings()
 
+# Connect to a Postgres database.
 DB_NAME = settings.db_name
 DB_USER = settings.db_user
 DB_PASS = settings.db_pass
 DB_HOST = settings.db_host
 DB_PORT = settings.db_port
 
+# Connect to a SQLite database.
+# DATABASE_NAME = "test.db"
+
 db_state_default = {"closed": None, "conn": None, "ctx": None, "transactions": None}
 db_state = ContextVar("db_state", default=db_state_default.copy())
 
 
 class PeeweeConnectionState(peewee._ConnectionState):
-    """docstring for PeeweeConnectionState"""
 
     def __init__(self, **kwargs):
         super().__setattr__("_state", db_state)
@@ -29,8 +32,12 @@ class PeeweeConnectionState(peewee._ConnectionState):
     def __getattr__(self, name):
         return self._state.get()[name]
 
-
+# Connect to a Postgres database.
 db = peewee.PostgresqlDatabase(DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT)
+
+# Connect to a SQLite database
+# db = peewee.SqliteDatabase(DATABASE_NAME)
+
 db._state = PeeweeConnectionState()
 
 
